@@ -108,13 +108,11 @@ print(kconf.write_config(sys.argv[2]))
 def name_and_loc(sym):
     # Helper for printing symbol names and Kconfig file location(s) in warnings
 
-    if not sym.nodes:
-        return sym.name + " (undefined)"
-
-    return "{} (defined at {})".format(
-        sym.name,
-        ", ".join("{}:{}".format(node.filename, node.linenr)
-                  for node in sym.nodes))
+    return (
+        f"{sym.name} (undefined)"
+        if not sym.nodes
+        else f'{sym.name} (defined at {", ".join(f"{node.filename}:{node.linenr}" for node in sym.nodes)})'
+    )
 
 for sym in kconf.defined_syms:
     # Was the symbol assigned to?
@@ -127,7 +125,7 @@ for sym in kconf.defined_syms:
             user_value = sym.user_value
 
         if user_value != sym.str_value:
-            print("warning: {} was assigned the value '{}' but got the "
-                  "value '{}' -- check dependencies".format(
-                      name_and_loc(sym), user_value, sym.str_value),
-                  file=sys.stderr)
+            print(
+                f"warning: {name_and_loc(sym)} was assigned the value '{user_value}' but got the value '{sym.str_value}' -- check dependencies",
+                file=sys.stderr,
+            )

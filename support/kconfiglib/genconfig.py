@@ -41,8 +41,8 @@ def main():
         "--header-path",
         metavar="HEADER_FILE",
         default=DEFAULT_HEADER_PATH,
-        help="Path for the generated header file (default: {})"
-             .format(DEFAULT_HEADER_PATH))
+        help=f"Path for the generated header file (default: {DEFAULT_HEADER_PATH})",
+    )
 
     parser.add_argument(
         "--config-out",
@@ -116,7 +116,7 @@ only supported for backwards compatibility).
     if args.env_list is not None:
         with _open_write(args.env_list) as f:
             for env_var in kconf.env_vars:
-                f.write("{}={}\n".format(env_var, os.environ[env_var]))
+                f.write(f"{env_var}={os.environ[env_var]}\n")
 
 
 def _open_write(path):

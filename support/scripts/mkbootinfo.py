@@ -46,8 +46,8 @@ def main():
                         help='exclude segments below this virtual address')
     opt = parser.parse_args()
 
-    if (opt.arch != 'x86_64') and (opt.arch != 'arm64'):
-        raise Exception("Unsupported architecture: {}".format(opt.arch))
+    if opt.arch not in ['x86_64', 'arm64']:
+        raise Exception(f"Unsupported architecture: {opt.arch}")
 
     endianness = 'big' if opt.big else 'little'
     mrd_size  = 64 if opt.names else 32
@@ -82,7 +82,7 @@ def main():
         nsecs      = 0
 
         cap = bootsec_size
-        cap = cap - UKPLAT_BOOTINFO_SIZE
+        cap -= UKPLAT_BOOTINFO_SIZE
         cap = cap // mrd_size
 
         secobj.write(UKPLAT_BOOTINFO_MAGIC.to_bytes(4, endianness)) # magic
@@ -121,7 +121,7 @@ def main():
             assert nsecs < cap
             nsecs += 1
 
-            secobj.write(pbase.to_bytes(8, endianness)) # pbase
+            secobj.write(vbase.to_bytes(8, endianness))
             secobj.write(vbase.to_bytes(8, endianness)) # vbase
             secobj.write(size.to_bytes(8, endianness)) # len
             secobj.write(UKPLAT_MEMRT_KERNEL.to_bytes(2, endianness)) # type

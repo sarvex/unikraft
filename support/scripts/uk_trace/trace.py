@@ -56,7 +56,7 @@ def parse_tf(trace_file):
         print("Unexpected end of trace file", file=sys.stderr)
         quit(-1)
     except Exception as inst:
-        print("Problem occurred during reading the tracefile: %s" % str(inst))
+        print(f"Problem occurred during reading the tracefile: {str(inst)}")
         quit(-1)
 
     return parse.sample_parser(keyvals, tp_defs, trace_buff, ptr_size)
@@ -93,12 +93,18 @@ def fetch(uk_img, out, remote, do_list, verbose):
     if os.path.exists(out):
         os.remove(out)
 
-    helper_path = os.path.abspath(uk_img) + '-gdb.py'
-    gdb_cmd = ['gdb', '-nh', '-batch',
-               click.format_filename(uk_img),
-               '-iex', 'add-auto-load-safe-path ' + helper_path,
-               '-ex', 'target remote ' + remote,
-               '-ex', 'uk trace save ' + out
+    helper_path = f'{os.path.abspath(uk_img)}-gdb.py'
+    gdb_cmd = [
+        'gdb',
+        '-nh',
+        '-batch',
+        click.format_filename(uk_img),
+        '-iex',
+        f'add-auto-load-safe-path {helper_path}',
+        '-ex',
+        f'target remote {remote}',
+        '-ex',
+        f'uk trace save {out}',
     ]
 
     proc = subprocess.Popen(gdb_cmd,

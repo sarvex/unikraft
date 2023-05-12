@@ -57,13 +57,7 @@ def get_trace_buffer():
         gdb.write("Error getting the trace buffer. Is tracing enabled?\n")
         raise gdb.error
 
-    if (trace_buff_writep == 0):
-        # This can happen as effect of compile optimization if none of
-        # tracepoints were called
-        used = 0
-    else:
-        used = trace_buff_writep - trace_buff_addr
-
+    used = 0 if (trace_buff_writep == 0) else trace_buff_writep - trace_buff_addr
     return bytes(inf.read_memory(trace_buff_addr, used))
 
 def save_traces(out):

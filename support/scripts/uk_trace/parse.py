@@ -117,7 +117,7 @@ class unpacker:
         fmt = self.endian + fmt
         size = struct.calcsize(fmt)
         if size > len(self.data) - self.pos:
-            raise EndOfBuffer("No data in buffer for unpacking %s bytes" % size)
+            raise EndOfBuffer(f"No data in buffer for unpacking {size} bytes")
         cur = self.data[self.pos:self.pos + size]
         self.pos += size
         return struct.unpack(fmt, cur)
@@ -149,13 +149,13 @@ class tp_definition:
         self.types = types
 
     def __str__(self):
-        return '%s %s' % (self.name,  self.fmt)
+        return f'{self.name} {self.fmt}'
 
 def get_tp_definitions(tp_data, ptr_size):
     ptr_fmt = '0x%0' + '%dx' % (ptr_size * 2)
     data = unpacker(tp_data)
 
-    ret = dict()
+    ret = {}
 
     while True:
         data.align_pos(__STRUCT_ALIGNMENT)
@@ -186,21 +186,17 @@ def get_tp_definitions(tp_data, ptr_size):
 
 def get_tp_sections(elf):
     f = tempfile.NamedTemporaryFile()
-    objcopy_cmd  = 'objcopy -O binary %s ' % elf
-    objcopy_cmd += '--only-section=.uk_tracepoints_list ' + f.name
+    objcopy_cmd = f'objcopy -O binary {elf} '
+    objcopy_cmd += f'--only-section=.uk_tracepoints_list {f.name}'
     objcopy_cmd = objcopy_cmd.split()
     subprocess.check_call(objcopy_cmd)
     return f.read()
 
 def get_keyvals(elf):
-    readelf_cmd = 'readelf -p .uk_trace_keyvals %s' % elf
+    readelf_cmd = f'readelf -p .uk_trace_keyvals {elf}'
     readelf_cmd = readelf_cmd.split()
     raw_data = subprocess.check_output(readelf_cmd).decode()
     filtered = re.findall(r'^\s*\[ *\d+\]\s+(.+) = (.+)$', raw_data,
                           re.MULTILINE)
 
-    ret = dict()
-    for key,val in filtered:
-        ret[key] = val
-
-    return ret
+    return dict(filtered)
